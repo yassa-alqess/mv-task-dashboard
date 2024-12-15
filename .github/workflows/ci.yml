@@ -28,9 +28,6 @@ jobs:
 
       - name: Build
         run: npm run build
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "17.x"
 
       # check if build is successful
       - name: List contents of dist directory
