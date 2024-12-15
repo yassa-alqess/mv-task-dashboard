@@ -78,17 +78,17 @@ jobs:
 
       - name: Create temporary directory on server
         run: |
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "mkdir -p /tmp/dist"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "mkdir -p ~/tmp/dist"
 
       - name: Transfer build files to temporary directory
         env:
           REPO: ${{ env.REPO_NAME }}
         run: |
-          sshpass -p "$SSH_PASS" rsync -avz --no-perms --no-times -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" /home/runner/work/$REPO/$REPO/dist/ $SSH_USER@$SSH_HOST:/tmp/dist
+          sshpass -p "$SSH_PASS" rsync -avz --no-perms --no-times -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" /home/runner/work/$REPO/$REPO/dist/ $SSH_USER@$SSH_HOST:~/tmp/dist
 
       - name: Move files to final directory 1 (/raqeeb-task.abdulmonaim.top/app) & remove temporary directory
         run: |
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "echo '$SSH_PASS' | sudo -S rsync -avz --no-perms --no-times /tmp/dist/ /var/www/raqeeb-task.abdulmonaim.top/app && rm -rf /tmp/dist"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "echo '$SSH_PASS' | sudo -S rsync -avz --no-perms --no-times /tmp/dist/ /var/www/raqeeb-task.abdulmonaim.top/app && rm -rf ~/tmp/dist"
 
       - name: Restart server services
         run: |
