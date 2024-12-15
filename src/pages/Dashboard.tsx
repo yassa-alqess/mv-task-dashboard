@@ -81,19 +81,15 @@ const Dashboards = () => {
                 <tr key={i} className="bg-tablePink text-black">
                   <td className="text-center font-[400] py-[17.5px] px-[16px]">
                     {item.fullName}
-                    fullName
                   </td>
 
                   <td className="text-center font-[400] py-[17.5px] px-[16px]">
-                    email
                     {item.email}
                   </td>
                   <td className="text-center font-[400] py-[17.5px] px-[16px]">
-                    phone
                     {item.phone}
                   </td>
                   <td className="text-center font-[400] py-[17.5px] px-[16px]">
-                    nid
                     {item.nid}
                   </td>
                 </tr>
