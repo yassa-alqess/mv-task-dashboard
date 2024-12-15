@@ -23,16 +23,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: "16"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
-        run: npm run build
+          node-version: 18
+      - run: npm install
+      - run: npm run build
 
       - name: List contents of dist directory
         run: find dist/
@@ -43,7 +38,6 @@ jobs:
           name: build-artifacts
           path: dist/
           retention-days: 1
-
 
   deploy:
     runs-on: ubuntu-latest
