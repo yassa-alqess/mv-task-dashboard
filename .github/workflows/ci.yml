@@ -3,11 +3,11 @@ name: ci-workflow
 on:
   push:
     branches:
-      - main
+      - mucho
       - dev
   pull_request:
     branches:
-      - main
+      - mucho
       - dev
   workflow_dispatch:
 

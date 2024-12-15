@@ -5,7 +5,7 @@ on:
     workflows: ["ci-workflow"]
     types: [completed]
     branches:
-      - main
+      - mucho
       - dev
 
 jobs:
