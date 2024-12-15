@@ -1,0 +1,101 @@
+name: cd-workflow
+
+on:
+  workflow_run:
+    workflows: ["ci-workflow"]
+    types: [completed]
+    branches:
+      - main
+      - dev
+
+jobs:
+  setup: #The workflow must contain at least one job with no dependencies.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: echo "Setting up deployment..."
+
+  build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: List contents of dist directory
+        run: find dist/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 1
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PASS: ${{ secrets.SSH_PASS }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./dist
+
+      - name: Extract Repository Name
+        id: extract_repo
+        run: |
+          # Extract repository name from github.repository
+          REPO_NAME=$(echo "${{ github.repository }}" | awk -F'/' '{print $2}')
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+
+      - name: List contents of build directory
+        env:
+          REPO: ${{ env.REPO_NAME }}
+        run: find /home/runner/work/$REPO/$REPO
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H github.com '$SSH_HOST' >> ~/.ssh/known_hosts
+
+      - name: Set up rsync
+        run: sudo apt-get install -y rsync
+
+      - name: Create temporary directory on server
+        run: |
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "mkdir -p /tmp/dist"
+
+      - name: Transfer build files to temporary directory
+        env:
+          REPO: ${{ env.REPO_NAME }}
+        run: |
+          sshpass -p "$SSH_PASS" rsync -avz --no-perms --no-times -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" /home/runner/work/$REPO/$REPO/dist/ $SSH_USER@$SSH_HOST:/tmp/dist
+
+      - name: Move files to final directory 1 (/raqeeb-task.abdulmonaim.top/app) & remove temporary directory
+        run: |
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "echo '$SSH_PASS' | sudo -S rsync -avz --no-perms --no-times /tmp/dist/ /var/www/raqeeb-task.abdulmonaim.top/app && rm -rf /tmp/dist"
+
+      - name: Restart server services
+        run: |
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "echo '$SSH_PASS' | sudo -S service nginx restart"
