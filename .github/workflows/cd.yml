@@ -88,7 +88,7 @@ jobs:
 
       - name: Move files to final directory 1 (/raqeeb-task.abdulmonaim.top/app) & remove temporary directory
         run: |
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "echo '$SSH_PASS' | sudo -S rsync -avz --no-perms --no-times /tmp/dist/ /var/www/raqeeb-task.abdulmonaim.top/app && rm -rf ~/tmp/dist"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "echo '$SSH_PASS' | sudo -S rsync -avz --no-perms --no-times ~/tmp/dist/ /var/www/raqeeb-task.abdulmonaim.top/app && rm -rf ~/tmp/dist"
 
       - name: Restart server services
         run: |
