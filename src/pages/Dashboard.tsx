@@ -16,8 +16,8 @@ const Dashboards = () => {
   const getData = async () => {
     const res = await api.get(`/leads?limit=10&page=${page}`, {});
     setData(res?.data?.data?.leads);
-    setTotal(res?.data?.data?.pages);
-    setPages(res?.data?.data?.total);
+    setTotal(res?.data?.data?.total);
+    setPages(res?.data?.data?.pages);
   };
 
   useEffect(() => {
@@ -103,7 +103,7 @@ const Dashboards = () => {
         aria-label="Table navigation"
       >
         <span className="md:text-sm text-[12px] font-normal mb-0 block  w-auto">
-          <span>{page}</span> of {pages} pages <span>({total} record)</span>
+          <span>{page}</span> of {pages} pages <span>({total} records)</span>
         </span>
         <ul className="inline-flex items-center justify-center md:gap-[10px] gap-[2px] -space-x-px rtl:space-x-reverse text-sm h-8">
           {page > 1 && (
