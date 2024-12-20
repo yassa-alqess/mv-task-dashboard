@@ -38,6 +38,7 @@ const FormComponent: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<IFormInput>({
     resolver: yupResolver(schema),
   });
@@ -53,6 +54,7 @@ const FormComponent: React.FC = () => {
       });
       toast.remove("lead-loading");
       toast.success("Submitted successfully");
+      reset(); // reset form fields
     } catch (err: unknown) {
       // showError(`Appointment failed! ${error}`, true);
       toast.remove("lead-loading");
@@ -86,7 +88,9 @@ const FormComponent: React.FC = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
           />
           {errors.fullName && (
-            <p className="mt-2 text-sm text-red-600">{errors.fullName.message}</p>
+            <p className="mt-2 text-sm text-red-600">
+              {errors.fullName.message}
+            </p>
           )}
         </div>
         <div>
